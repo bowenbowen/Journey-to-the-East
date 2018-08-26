@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Journey to the East</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="A travel journal highlighting my unusual findings and previous misconceptions about Japan and Korea.">
+    <meta name="keywords" content="HTML,CSS,JavaScript">
+    <meta name="author" content="Bowen Shen">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src="javascript/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.1/TweenMax.min.js"></script>
+    
+    
+
+
+    <style>
+        body {
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;           
+        }
+
+
+
+        .content-wrapper {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+             
+            background-color: black;
+            background-repeat: repeat-x;
+            background-image: url("images/floating-bg.png");
+    		background-size: auto 100%;
+/*            background-position: 0 0;*/
+    		animation: animated-background 10s linear infinite;
+        }
+        
+        @keyframes animated-background {
+                from { 
+                    background-position: 0 0; 
+                }
+                to { 
+                    background-position: 175.44vh 0; 
+                /* original height/original width(100vw) * 100vh = ?vh */
+                }
+            }
+
+        #logo {
+            position: absolute;
+            left: 40%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+            height: 25vh;
+            max-width: 100%;
+            animation: pop-up 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+        }
+
+        .walk {
+            position: absolute;
+            bottom: -11vh;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 20vh;
+            filter: drop-shadow(0px 5px 5px rgba(0, 0, 0, .3));
+            cursor: url("images/blurb.png") 28 15, auto;
+        }
+
+        /*------------------------ flag-animation ------------------------*/
+
+        .flag-bg {
+            background-color: white;
+            height: 100vh;
+            width: 100vw;
+            clip-path: circle(0% at 50% 50%);
+        }
+        
+        .flag-bg h1 {
+            position: absolute;
+            right: 20%;
+            bottom: 30%;
+            font-family: 'Open Sans Bold', sans-serif;
+            font-size: 10vh;
+            color: #FA0064;
+        }
+
+        .non-japan,
+        .non-korea {
+            transition: all .8s ease;
+        }
+        
+
+        /*------------------------ blurb pop up -----------------------*/
+
+        .blurb-container {
+            height: 100vh;
+            width: 100vw;
+            pointer-events: none;
+        }
+
+        .blurb-text {
+            padding: .5em;
+            /*transform-origin: center;*/
+            position: absolute;
+            top: 38%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 35vh;
+            height: 30vh;
+            overflow-y: scroll;
+            font-family: 'Open Sans SemiBold', sans-serif;
+            color: #0041FA;
+            font-size: 1em;
+            line-height: 1.5em;
+            visibility: hidden;
+            pointer-events: auto;
+        }
+
+        #all-bubbles {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 65vh;
+            overflow: visible;
+            /* so that it doesn't clip */
+        }
+
+        .bubble {
+            transform: scale(0);
+            transform-origin: center;
+        }
+
+        #close {
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        
+        /*----------------------- change the appearance of the scrollbar ----------------------- */
+        /* https://css-tricks.com/examples/WebKitScrollbars/ */
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            /*-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);*/
+            -webkit-border-radius: 2px;
+            border-radius: 2px;
+        }
+
+        /* Handle */
+
+        ::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 4px;
+            border-radius: 4x;
+            background: #0041FA;
+            /*-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);*/
+        }
+
+        ::-webkit-scrollbar-thumb:window-inactive {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+
+        /*-----------------------animations-----------------------*/
+
+        @keyframes flag-pop-up {
+            50% {
+                clip-path: circle(110% at 50% 50%);
+            }
+            100% {
+                clip-path: circle(100% at 50% 50%);
+            }
+        }
+
+        @keyframes flag-pop-up-reverse {
+            0% {
+                clip-path: circle(100% at 50% 50%);
+            }
+            100% {
+                clip-path: circle(0% at 50% 50%);
+            }
+        }
+
+
+        @keyframes pop-up {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pop-up-reverse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(0);
+            }
+        }
+
+        @keyframes shifted-pop-up {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            @keyframes shifted-pop-up-reverse {
+                100% {
+                    transform: translate(-50%, -50%) scale(0);
+                }
+                /* would be good idea to just use "reverse" but somehow i couldn't get it working */
+            }
+
+            
+
+
+            /* animation generated by http://animista.net but doesn't work on my elements */
+            @keyframes slide-in-elliptic-top-fwd {
+                0% {
+                    -webkit-transform: translateY(-600px) rotateX(-30deg) scale(0);
+                    transform: translateY(-600px) rotateX(-30deg) scale(0);
+                    -webkit-transform-origin: 50% 100%;
+                    transform-origin: 50% 100%;
+                    opacity: 0;
+                }
+                100% {
+                    -webkit-transform: translateY(0) rotateX(0) scale(1);
+                    transform: translateY(0) rotateX(0) scale(1);
+                    -webkit-transform-origin: 50% 1400px;
+                    transform-origin: 50% 1400px;
+                    opacity: 1;
+                }
+            }
+
+    </style>
+</head>
+
+<body>
+    <div class="content-wrapper">
+        
+<!--        <div></div>-->
+        
+        <div class="flag-bg">
+            <h1 id="country-name">Some text</h1>
+        </div>
+        
+        
+        <div id="logo-wrapper">
+            <svg id="logo" viewBox="0 0 359.18 247.1" style="overflow: visible">
+                <defs><style>.cls-a{fill:#ffdc34;}.cls-b{fill:#fa0064 ;}.cls-c{fill:#0041fa;}</style></defs>
+                <path id="J" class="cls-a non-japan non-korea" d="M29.39,1V37.24c0,4-.24,9.91-4.64,14.22-3.51,3.51-7.82,4-11.26,4A15.47,15.47,0,0,1,5,53.53a21.73,21.73,0,0,1-5-4.47l7.67-8.62a13,13,0,0,0,1.91,3,4,4,0,0,0,3,1.2,3.78,3.78,0,0,0,2.87-1.12c1.52-1.51,1.6-4.07,1.6-6.31V1Z"/>
+                <path id="U" class="cls-a non-japan non-korea" d="M150.76,32.53c0,5.11-.64,11.42-5.91,16.85-5.11,5.27-11,6.07-16.61,6.07s-11.49-.8-16.6-6.07c-5.28-5.43-5.91-11.74-5.91-16.85V1H118V32.21c0,2.32.16,6.23,2.8,8.95a11.28,11.28,0,0,0,14.85,0c2.64-2.72,2.8-6.63,2.8-8.95V1h12.29Z"/>
+                <path id="R" class="cls-a non-japan non-korea" d="M181.11,1c6.79,0,11,2.24,13.57,4.63,2.24,2.16,4.63,6,4.63,11.9a14.54,14.54,0,0,1-4.15,10.86,16.7,16.7,0,0,1-7.42,4.07l16.37,21.8h-15l-14.37-21v21h-12.3V1Zm-6.39,24.2h2.79c2.24,0,5.28-.24,7.35-2.32a7.16,7.16,0,0,0,2-5.19,6.47,6.47,0,0,0-2.48-5.43c-2-1.52-5.19-1.68-6.79-1.68h-2.87Z"/>
+                <path id="N" class="cls-a non-japan non-korea" d="M210.89,54.25V1h10.7L250.5,35.33V1h12.3V54.25H252.1L223.19,19.76V54.25Z"/>
+                <path id="E" class="cls-a non-japan non-korea" d="M304.56,11.37H286.75v10.3h16.93V32.05H286.75V43.87h17.81V54.25h-30.1V1h30.1Z"/>
+                <path id="Y" class="cls-a non-japan non-korea" d="M327.8,29.42,308.71,1h14.54L334,17.52,344.65,1h14.53L340.1,29.42V54.25H327.8Z"/>
+                <path id="T" class="cls-a non-japan non-korea" d="M26.59,107.2v42.88H14.29V107.2H2.72V96.82H38.17V107.2Z"/>
+                <path id="T-2" data-name="T" class="cls-a non-japan non-korea" d="M145,107.2v42.88H132.72V107.2H121.14V96.82h35.45V107.2Z"/>
+                <path id="H" class="cls-a non-japan non-korea" d="M175.36,117.1H196.6V96.82h12.3v53.26H196.6v-22.6H175.36v22.6h-12.3V96.82h12.3Z"/>
+                <path id="E-2" data-name="E" class="cls-a non-japan non-korea" d="M250.66,107.2H232.85v10.3h16.93v10.38H232.85V139.7h17.81v10.38h-30.1V96.82h30.1Z"/>
+                <path id="E-3" data-name="E" class="cls-a non-japan non-korea" d="M38,203H20.2v10.3H37.13V223.7H20.2v11.82H38V245.9H7.9V192.64H38Z"/>
+                <path id="A" class="cls-a non-japan non-korea" d="M79.29,235.84H59.17L55.1,245.9H42.32L63.8,192.64H75.06l21,53.26H83.29Zm-3.35-9.42-6.55-17.89-6.63,17.89Z"/>
+                <path id="S" class="cls-a non-japan non-korea" d="M129.52,205.66c-4-3.6-7.42-3.84-8.94-3.84a6.65,6.65,0,0,0-5.19,1.84A4.77,4.77,0,0,0,114,207a3.74,3.74,0,0,0,1.2,3c1.28,1.2,3.11,1.68,6.71,3l4,1.52a21.59,21.59,0,0,1,7.27,4.07,13.31,13.31,0,0,1,3.91,9.91c0,5.51-1.92,10.3-4.71,13.17-4.71,5-11.58,5.43-15.1,5.43a22.56,22.56,0,0,1-10.54-2.24A33.75,33.75,0,0,1,98.94,239l6.39-8.79a31.48,31.48,0,0,0,5,4.07,12.33,12.33,0,0,0,6.7,1.92,8.48,8.48,0,0,0,5.59-1.84,5.48,5.48,0,0,0,1.92-4.31,4.7,4.7,0,0,0-1.84-3.83c-1.43-1.2-4.71-2.4-6.22-3l-4.4-1.51c-2.47-.88-5.35-2-7.42-4.23-2.8-3-3.2-6.71-3.2-9.27a16.4,16.4,0,0,1,4.63-12c3.76-3.83,8.23-4.87,13.18-4.87A25.76,25.76,0,0,1,135,196.71Z"/>
+                <polygon id="T-east" class="cls-a non-japan non-korea" points="187.62 197.8 170.58 187.97 170.58 192.64 140.78 192.64 140.78 203.02 152.36 203.02 152.36 245.9 164.66 245.9 164.66 203.02 170.58 203.02 170.58 207.64 187.62 197.8"/>
+
+                <a href="japan.html" title="Japan" class="non-korea">
+                <circle id="japan-symbol" onmouseenter="japanHover()" onmouseleave="japanHoverOff()" class="cls-b" cx="67.73" cy="28.4" r="28.4"/>
+                </a>   
+                                    
+                <a href="korea.html" title="Korea" class="non-japan">
+                <g id="korea-symbol" >
+                    <circle id="korea-top" class="cls-b" cx="67.73" cy="123.84" r="28.4"/>
+                    <path id="korea-bottom" class="cls-c" d="M67.73,152.25a28.41,28.41,0,0,1-28.41-28.41,14.21,14.21,0,1,0,28.41,0,14.2,14.2,0,1,1,28.4,0A28.41,28.41,0,0,1,67.73,152.25Z"/>
+                    <circle onmouseenter="koreaHover()" onmouseout="koreaHoverOff()" fill-opacity="0" cx="67.73" cy="123.84" r="28.4"/>
+<!--              ^ The transparent circle here is to cover the whole symbol and act like a trigger. Otherwise the select state will be de-triggered when cursor moves between elements due to unknow reason. -->
+                </g></a>
+                </svg>
+
+        </div>
+
+        <img class="walk" src="images/walk_cycle/walk_1.png" onclick="walkClicked()" />
+
+        <div class="blurb-container">
+
+            <svg id="all-bubbles" viewBox="0 0 469.36 546.6">
+            <defs><style>.cls-1 { isolation: isolate; } .cls-2 { fill: #ffdc34; } .cls-3 { fill: #fa0064; } .cls-4 { fill: #fff; } .cls-5 { opacity: 0.3; mix-blend-mode: multiply; } .cls-6 { fill: #0041fa; } </style></defs>
+            <g class="cls-1">
+            <circle id="bubble_1" data-name="1" class="cls-2 bubble" cx="127.59" cy="520.54" r="26.06"/>
+            <circle id="bubble_2" data-name="2" class="cls-3 bubble" cx="347.48" cy="449.48" r="89.49"/>
+            <circle id="bubble_3" data-name="3" class="cls-4 bubble" cx="234.68" cy="234.68" r="234.68"/>
+            <g id="close" class="bubble" onclick="closeClicked()">
+            <image class="cls-5 bubble" width="71" height="72" transform="translate(362.49 35.53)" xlink:href="data:image/png;base64,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"/><circle class="cls-6" cx="397.95" cy="68.58" r="26.06"/><rect class="cls-4" x="396.07" y="55.83" width="3.75" height="25.5" transform="translate(68.06 301.48) rotate(-45)"/><rect class="cls-4" x="396.07" y="55.83" width="3.75" height="25.5" transform="translate(165.05 -261.31) rotate(45)"/></g></g></svg>
+
+
+
+
+            <p class="blurb-text">Growing up in China, a country that shares a lot of cultural roots with Japan and Korea, I didn’t dive into a completely unknown adventure when travelling in these two countries. However, my impressions of them were also proven superficial after the experience. This website acts as a journal and reflection of this journey in relation to my cultural background, documenting some of my interesting findings and previous misconceptions that were later found untrue. <br><br>Although I appear to be bad mouthing sometimes, I don’t have any negative intentions! I absolutely enjoyed the time and will come back again in the future.
+            </p>
+        </div>
+    </div>
+
+
+<script src="javascript/index.js" type="text/javascript"></script>
+</body>
+
+</html>
+
+
+<!-- unsolved issues in this document: 
+        1. animista.net animation doesnt work
+        2. can't directly reverse animations for bubbles and text
+        3. text dissapears without playing animation
+        4. animation cannot be reused to reverse
+-->

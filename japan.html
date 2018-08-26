@@ -1,0 +1,366 @@
+<!-- Thanks for 
+                http://2011.beercamp.com/ for inspiration 
+                https://codepen.io/geoffgraham/pen/QNgoQW for customised cursor
+                http://scrollmagic.io/examples/expert/image_sequence.html for image sequence animation
+                http://nma.kcc.hawaii.edu/gargiulo/tests/animation/z-axis-scrolling-found.html for z-axis scroll techniques
+-->
+
+<!-- Colour references
+
+                blue   #0041FA
+                red   #FA0064
+                yellow   #FFDC34                -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Japan - Journey to the East</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="javascript/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.1/TweenMax.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/plugins/debug.addIndicators.min.js"></script>
+    <script src="javascript/Mouse-aware-Parallax-Effect-with-jQuery-and-TweenMax-Mouse-Parallax/jquery-parallax.js"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+
+
+
+    <style>
+        body {
+            background: #FFDC34;
+            height: 5500px;
+            text-align: center;
+            cursor: url("images/japan-symbol.png") 28 15, auto;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            position: absolute;
+        }
+
+        #content {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /*             if smaller content box is used and centering is needed: */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #viewport {
+            -webkit-perspective: 300px;
+            -moz-perspective: 300px;
+            -webkit-perspective-origin: 50% 50%;
+            -moz-perspective-origin: 50% 50%;
+            -moz-transform-style: preserve-3d;
+            width: 100%;
+            height: 100%;
+        }
+
+        .frame {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+            -moz-transform-style: preserve-3d;
+        }
+
+        p {
+            opacity: .2;
+            position: absolute;
+            padding: 1em;
+            top: 10%;
+            left: 50%;
+            height: 35vh;
+            width: 40vh;
+            transform: translate(-50%, 0);
+            overflow-y: scroll;
+            text-align: left;
+            font-family: 'Open Sans SemiBold', sans-serif;
+            color: #0041FA;
+            font-size: 1.5em;
+            line-height: 1.5em;
+            pointer-events: auto;
+            transition: all .5s ease;
+        }
+
+        h2 {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 0);
+            font-family: 'Open Sans ExtraBold', sans-serif;
+            font-size: 10vh;
+            color: #0041FA;
+            text-align: left;
+            filter: drop-shadow(0px 5px 5px rgba(0, 0, 0, .3));
+            pointer-events: none;
+            transition: all .5s ease;
+        }
+
+        p:hover~h2 {
+            opacity: 0;
+        }
+
+        p:hover {
+            opacity: 1;
+        }
+
+        .image-layer {
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+
+
+        /*----------------- fixed elements -----------------*/
+
+        #fixed-container {
+            position: relative;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100vw;
+            pointer-events: none;
+        }
+
+        #walk {
+            position: absolute;
+            bottom: 0vh;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            height: 20vh;
+            width: auto;
+            filter: drop-shadow(0px 5px 5px rgba(0, 0, 0, .3));
+        }
+
+        #japan-ball {
+            position: absolute;
+            height: 70vh;
+            top: 120vh;
+            transform: translate(-50%, -50%);
+        }
+
+        #scroll-down {
+            opacity: 1;
+            position: absolute;
+            height: 3em;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: jump 1s ease infinite;
+            transition: opacity .8s;
+        }
+
+        #logo {
+            position: absolute;
+            height: 15vh;
+            left: 2em;
+            top: 2em;
+            pointer-events: auto;
+        }
+
+        #logo-letters {
+            transition: all .2s ease;
+        }
+
+        #logo-letters:hover {
+            opacity: .5;
+        }
+
+        /*----------------- adjustments to individual frames -----------------*/
+
+        .bubbles {
+            left: 0%;
+            top: 0%;
+            height: 70vh;
+        }
+
+
+        /*----------------------- change the appearance of the scrollbar ----------------------- */
+
+        /* https://css-tricks.com/examples/WebKitScrollbars/ */
+
+        p::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        p::-webkit-scrollbar-track {
+            /*-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);*/
+            -webkit-border-radius: 2px;
+            border-radius: 2px;
+        }
+
+        /* Handle */
+
+        p::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+            background: #0041FA;
+            /*-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);*/
+        }
+
+        p::-webkit-scrollbar-thumb:window-inactive {
+            background: rgba(255, 0, 0, 0.4);
+        }
+
+
+        /*----------------- animations -----------------*/
+
+        @keyframes jump {
+            0%,
+            50%,
+            100% {
+                transform: translateY(0) translate(-50%, -50%);
+            }
+            25%,
+            75% {
+                transform: translateY(2em) translate(-50%, -50%);
+            }
+        }
+
+    </style>
+
+</head>
+
+<body data-gr-c-s-loaded="true">
+
+    <div id="content">
+        <div id="viewport">
+
+            <!-------------------------- 4. mapo -------------------------->
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-6500px);-moz-transform:translateZ(-6500px);display:block;opacity:1;left: 0%;">
+                <img id="mapo-back" height="20vw" src="images/japan-mapo-background.svg" style="right:-20%" />
+            </div>
+
+            <div id="mapo-bubble" class="frame bubble-layer" style="-webkit-transform:translateZ(-6000px);-moz-transform:translateZ(-6000px);display:block;opacity:1">
+                <img height="40vh" class="bubbles" src="images/bubble_2.svg" style="top:35%;left:50%;transform:translate(-50%,-50%);" />
+                <p>It happens in some other countries that the representative Chinese dishes for local people are far different from those for Chinese people. It’s also true in our relatively close neighbour Japan.<br><br> I never figured out why Chinese restaurants in Japan feature mapo tofu (a classic Chinese dish) along with some other uncommon dishes. This phenomenon even spread to Korea as well. They also made changes to the flavour so that the dish is more sweet and less spicy. I felt like flying back to China and having some authentic mapo tofu to remind myself of the real essence of spiciness.
+
+                </p>
+                <h2 style="top:-7%;">4.<br>Chinese <br>cuisine = <br>mapo tofu? <br>No way.</h2>
+            </div>
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-5500px);-moz-transform:translateZ(-5500px);display:block;opacity:1">
+                <img id="mapo-front" height="40vh" src="images/japan-mapo-foreground.svg" style="left:-10%;bottom:-10%;" />
+            </div>
+
+
+            <!-------------------------- 3. masks -------------------------->
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-5000px);-moz-transform:translateZ(-5000px);display:block;opacity:1;left: 0%;">
+                <img id="mask-back" height="80vh" src="images/japan-masks-background.svg" style="left:0%" />
+            </div>
+
+            <div id="masks-bubble" class="frame bubble-layer" style="-webkit-transform:translateZ(-4500px);-moz-transform:translateZ(-4500px);display:block;opacity:1">
+                <img height="60vh" class="bubbles" src="images/bubble_1.svg" style="top:35%;left:50%;transform:translate(-50%,-50%);" />
+                <p>It was in summer when I travelled to Japan and the weather couldn’t be said to be cold at all. But I noticed that a lot of people was wearing masks. “Are they afraid of getting tanned?” I thought.<br><br> The other day I asked my Japanese friend about this interesting fact, and she told me that quite a lot of Japanese are allergic to pollen. Besides, girls like to wear masks if they didn’t wear makeup. Hmm, in that sense it’s very convenient and maybe I should try as well…
+                </p>
+                <h2 style="left:55%;top:-10%;">3.<br>Why do<br>they like<br>wearing <br>masks?</h2>
+            </div>
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-4000px);-moz-transform:translateZ(-4000px);display:block;opacity:1">
+                <img id="mask-front" height="80vh" src="images/japan-masks-foreground.svg" style="left:0%" />
+            </div>
+
+            <!-------------------------- 2.     mascots -------------------------->
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-3500px);-moz-transform:translateZ(-3500px);display:block;opacity:1;left: 0%;">
+                <img id="mascots-back" height="80vh" src="images/japan-mascots-background.svg" style="left:0%" />
+            </div>
+
+            <div id="mascots-bubble" class="frame bubble-layer" style="-webkit-transform:translateZ(-3000px);-moz-transform:translateZ(-3000px);display:block;opacity:1">
+                <img height="40vh" class="bubbles" src="images/bubble_2.svg" style="top:35%;left:50%;transform:translate(-50%,-50%);" />
+                <p>It’s not difficult to understand their affection for pandas after all as everyone knows Japan loves and produces kawaii things. Almost every city/town I had been to in Japan had their own mascots. But unlike in China, where some mascots have appearance that makes you wish they’d better don’t exist, Japanese mascots are very well designed and hence very popular even in other countries.
+                </p>
+                <h2 style="top:-10%;">2.<br>They cutify <br>everything<br>and make <br>mascots</h2>
+            </div>
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-2500px);-moz-transform:translateZ(-2500px);display:block;opacity:1">
+                <img id="mascots-front" height="80vh" src="images/japan-mascots-foreground.svg" style="left:0%" />
+            </div>
+
+            <!-------------------------- 1. panda -------------------------->
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-2000px);-moz-transform:translateZ(-2000px);display:block;opacity:1;left: 0%;">
+                <img id="panda-back" height="80vh" src="images/japan-panda-background.svg" style="left:0%" />
+            </div>
+
+            <div id="panda-bubble" class="frame bubble-layer" style="-webkit-transform:translateZ(-1500px);-moz-transform:translateZ(-1500px);display:block;opacity:1">
+                <img height="40vh" class="bubbles" src="images/bubble_1.svg" style="top:35%;left:50%;transform:translate(-50%,-50%);" />
+                <p>I don’t even think Chinese people love panda as much as Japanese people do! I mean, we do love these fluffy balls and are very proud of them. But we don’t show off them everywhere. But in Japan, you can find pandas on packaging, in front of restaurants, on TV, in souvenir shops…<br><br> Maybe a foreign visitor will start doubting whether pandas really originate from China instead of Japan.
+                </p>
+                <h2>1.<br>PANDA<br>FEVER!</h2>
+            </div>
+
+            <div class="frame image-layer" style="-webkit-transform:translateZ(-1000px);-moz-transform:translateZ(-1000px);display:block;opacity:1">
+                <img id="panda-front" height="80vh" src="images/japan-panda-foreground.svg" style="right:0%" />
+            </div>
+
+
+            <!-------------------------- fixed elements -------------------------->
+
+            <div id="fixed-container">
+                <img id="scroll-down" src="images/scroll-down.svg" />
+                <img id="japan-ball" src="images/japan-symbol.svg" />
+                <img id="walk" src="images/walk_cycle/walk_1.png" />
+                <svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 359.18 247.1" style="overflow: visible">
+                    <defs><style>.cls-1{fill:black;}.cls-2{fill:#fa0064;}.cls-3{fill:#0041fa;}</style></defs>
+                    <a href="index.html">
+                        <g id="logo-letters">
+                        <path id="J" class="cls-1 logo-text" d="M29.39,1V37.24c0,4-.24,9.91-4.64,14.22-3.51,3.51-7.82,4-11.26,4A15.47,15.47,0,0,1,5,53.53a21.73,21.73,0,0,1-5-4.47l7.67-8.62a13,13,0,0,0,1.91,3,4,4,0,0,0,3,1.2,3.78,3.78,0,0,0,2.87-1.12c1.52-1.51,1.6-4.07,1.6-6.31V1Z"/>
+                        <path id="U" class="cls-1 logo-text" d="M150.76,32.53c0,5.11-.64,11.42-5.91,16.85-5.11,5.27-11,6.07-16.61,6.07s-11.49-.8-16.6-6.07c-5.28-5.43-5.91-11.74-5.91-16.85V1H118V32.21c0,2.32.16,6.23,2.8,8.95a11.28,11.28,0,0,0,14.85,0c2.64-2.72,2.8-6.63,2.8-8.95V1h12.29Z"/>
+                        <path id="R" class="cls-1 logo-text" d="M181.11,1c6.79,0,11,2.24,13.57,4.63,2.24,2.16,4.63,6,4.63,11.9a14.54,14.54,0,0,1-4.15,10.86,16.7,16.7,0,0,1-7.42,4.07l16.37,21.8h-15l-14.37-21v21h-12.3V1Zm-6.39,24.2h2.79c2.24,0,5.28-.24,7.35-2.32a7.16,7.16,0,0,0,2-5.19,6.47,6.47,0,0,0-2.48-5.43c-2-1.52-5.19-1.68-6.79-1.68h-2.87Z"/>
+                        <path id="N" class="cls-1 logo-text" d="M210.89,54.25V1h10.7L250.5,35.33V1h12.3V54.25H252.1L223.19,19.76V54.25Z"/>
+                        <path id="E" class="cls-1 logo-text" d="M304.56,11.37H286.75v10.3h16.93V32.05H286.75V43.87h17.81V54.25h-30.1V1h30.1Z"/>
+                        <path id="Y" class="cls-1 logo-text" d="M327.8,29.42,308.71,1h14.54L334,17.52,344.65,1h14.53L340.1,29.42V54.25H327.8Z"/>
+                        <path id="T" class="cls-1 logo-text" d="M26.59,107.2v42.88H14.29V107.2H2.72V96.82H38.17V107.2Z"/>
+                        <path id="T-2" data-name="T" class="cls-1 logo-text" d="M145,107.2v42.88H132.72V107.2H121.14V96.82h35.45V107.2Z"/>
+                        <path id="H" class="cls-1 logo-text" d="M175.36,117.1H196.6V96.82h12.3v53.26H196.6v-22.6H175.36v22.6h-12.3V96.82h12.3Z"/>
+                        <path id="E-2" data-name="E" class="cls-1 logo-text" d="M250.66,107.2H232.85v10.3h16.93v10.38H232.85V139.7h17.81v10.38h-30.1V96.82h30.1Z"/>
+                        <path id="E-3" data-name="E" class="cls-1 logo-text" d="M38,203H20.2v10.3H37.13V223.7H20.2v11.82H38V245.9H7.9V192.64H38Z"/>
+                        <path id="A" class="cls-1 logo-text" d="M79.29,235.84H59.17L55.1,245.9H42.32L63.8,192.64H75.06l21,53.26H83.29Zm-3.35-9.42-6.55-17.89-6.63,17.89Z"/>
+                        <path id="S" class="cls-1 logo-text" d="M129.52,205.66c-4-3.6-7.42-3.84-8.94-3.84a6.65,6.65,0,0,0-5.19,1.84A4.77,4.77,0,0,0,114,207a3.74,3.74,0,0,0,1.2,3c1.28,1.2,3.11,1.68,6.71,3l4,1.52a21.59,21.59,0,0,1,7.27,4.07,13.31,13.31,0,0,1,3.91,9.91c0,5.51-1.92,10.3-4.71,13.17-4.71,5-11.58,5.43-15.1,5.43a22.56,22.56,0,0,1-10.54-2.24A33.75,33.75,0,0,1,98.94,239l6.39-8.79a31.48,31.48,0,0,0,5,4.07,12.33,12.33,0,0,0,6.7,1.92,8.48,8.48,0,0,0,5.59-1.84,5.48,5.48,0,0,0,1.92-4.31,4.7,4.7,0,0,0-1.84-3.83c-1.43-1.2-4.71-2.4-6.22-3l-4.4-1.51c-2.47-.88-5.35-2-7.42-4.23-2.8-3-3.2-6.71-3.2-9.27a16.4,16.4,0,0,1,4.63-12c3.76-3.83,8.23-4.87,13.18-4.87A25.76,25.76,0,0,1,135,196.71Z"/>
+                        <polygon id="T-eas" class="cls-1 logo-text" points="187.62 197.8 170.58 187.97 170.58 192.64 140.78 192.64 140.78 203.02 152.36 203.02 152.36 245.9 164.66 245.9 164.66 203.02 170.58 203.02 170.58 207.64 187.62 197.8"/>
+                        </g>
+                    </a>
+                    
+                    <a href="japan.html">
+                        <circle id="japan-symbol" class="cls-2 japan" cx="67.73" cy="28.4" r="28.4" onmouseenter="japanHover()" onmouseleave="japanHoverOff()"/>
+                    </a>
+                    
+                    
+                    <a href="korea.html">
+                    <g id="korea-symbol">
+                    <circle id="korea-top" class="cls-2 korea" cx="67.73" cy="123.84" r="28.4"/>
+                    <path id="korea-bottom" class="cls-3" d="M67.73,152.25a28.41,28.41,0,0,1-28.41-28.41,14.21,14.21,0,1,0,28.41,0,14.2,14.2,0,1,1,28.4,0A28.41,28.41,0,0,1,67.73,152.25Z"/>
+                    <circle onmouseenter="koreaHover()" onmouseout="koreaHoverOff()" fill-opacity="0" cx="67.73" cy="123.84" r="28.4"/>
+                    </g>
+                    </a>
+                        
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script src="javascript/japan.js" type="text/javascript"></script>
+
+
+
+
+</body>
+
+</html>
+
+<!-- unsolved issues in this document: 
+        1. when window becomes smaller the japan ball gets out of place
+-->
